@@ -2816,9 +2816,6 @@ void read_activity_actor::do_turn( player_activity &act, Character &who )
 
     if( who.is_avatar() ) {
         if( bktype == static_cast<int>( book_type::martial_art ) && one_in( 3 ) ) {
-            /* TODO: REVIEW THIS AND FIGURE OUT WHY IT SAVED STAMINA
-                PLEASE DONT PR THIS WITHOUT FIGURING IT OUT
-            */
             who.mod_stamina( -1 );
         }
     } else {
