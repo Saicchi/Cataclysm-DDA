@@ -938,8 +938,7 @@ class read_activity_actor : public activity_actor
     private:
         int moves_total;
         item_location book;
-        // casting is necessary for serialization
-        int bktype = static_cast<int>( book_type::normal );
+        cata::optional<book_type> bktype;
 
         // Read until the learner with this ID gets a level
         bool continuous;

@@ -2793,9 +2793,8 @@ void read_activity_actor::start( player_activity &act, Character &/*who*/ )
         return;
     }
 
-    if( book->type->use_methods.count( "MA_MANUAL" ) ) {
-        bktype = static_cast<int>( book_type::martial_art );
-    }
+    bktype = book->type->use_methods.count( "MA_MANUAL" ) ?
+             book_type::martial_art : book_type::normal;
 
     // push copy of book for focus calculation
     // avatar::update_mental_focus and avatar::calc_focus_equilibrium
@@ -2814,8 +2813,13 @@ void read_activity_actor::do_turn( player_activity &act, Character &who )
         return;
     }
 
+    if( !bktype.has_value() ) {
+        bktype = book->type->use_methods.count( "MA_MANUAL" ) ?
+                 book_type::martial_art : book_type::normal;
+    }
+
     if( who.is_avatar() ) {
-        if( bktype == static_cast<int>( book_type::martial_art ) && one_in( 3 ) ) {
+        if( bktype.value() == book_type::martial_art && one_in( 3 ) ) {
             who.mod_stamina( -1 );
         }
     } else {
@@ -3132,7 +3136,7 @@ bool read_activity_actor::npc_read( npc &learner )
 
 void read_activity_actor::finish( player_activity &act, Character &who )
 {
-    const bool is_mabook = bktype == static_cast<int>( book_type::martial_art );
+    const bool is_mabook = bktype.value() == book_type::martial_art;
     if( who.is_avatar() ) {
         get_event_bus().send<event_type::reads_book>( who.getID(), book->typeId() );
 
@@ -3224,7 +3228,6 @@ void read_activity_actor::serialize( JsonOut &jsout ) const
 
     jsout.member( "moves_total", moves_total );
     jsout.member( "book", book );
-    jsout.member( "bktype", bktype );
     jsout.member( "continuous", continuous );
     jsout.member( "learner_id", learner_id );
 
@@ -3238,7 +3241,6 @@ std::unique_ptr<activity_actor> read_activity_actor::deserialize( JsonIn &jsin )
 
     data.read( "moves_total", actor.moves_total );
     data.read( "book", actor.book );
-    data.read( "bktype", actor.bktype );
     data.read( "continuous", actor.continuous );
     data.read( "learner_id", actor.learner_id );
 
