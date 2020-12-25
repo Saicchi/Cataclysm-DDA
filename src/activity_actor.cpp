@@ -2785,12 +2785,31 @@ std::unique_ptr<activity_actor> disassemble_activity_actor::deserialize( JsonIn 
     return actor.clone();
 }
 
-void read_activity_actor::start( player_activity &act, Character &/*who*/ )
+void read_activity_actor::start( player_activity &act, Character &who )
 {
     if( !book->is_book() ) {
         debugmsg( "ACT_READ on a non-book item" );
         act.set_to_null();
         return;
+    }
+
+    // make reader wield book to prevent
+    // losing item_location errors while loading
+    if( !who.is_wielding( *book ) ) {
+        if( !who.is_armed() ||
+            ( who.is_npc() || query_yn( _( "Wield the %s and start reading?" ), book->tname() ) ) )   {
+
+            if( !who.wield( *book ) ) {
+                add_msg( m_bad, "%s", who.can_wield( *book ).c_str() );
+                act.set_to_null();
+                return;
+            }
+            // location changed
+            book = item_location( who, &who.weapon );
+        } else {
+            act.set_to_null();
+            return;
+        }
     }
 
     bktype = book->type->use_methods.count( "MA_MANUAL" ) ?
