@@ -965,7 +965,7 @@ class read_activity_actor : public activity_actor
         }
 
         static void read_book( Character &learner, const cata::value_ptr<islot_book> &islotbook,
-                               SkillLevel &skill_level, const double penalty );
+                               SkillLevel &skill_level, double penalty );
 
         void start( player_activity &act, Character &/*who*/ ) override;
         void do_turn( player_activity &act, Character &who ) override;
