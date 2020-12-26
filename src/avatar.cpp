@@ -536,6 +536,10 @@ bool avatar::read( item_location &book )
         menu.addentry( 2 + getID().get_value(), lvl < type->level, '1',
                        string_format( _( "Read until you gain a level | current level: %d" ), lvl ) );
 
+        // select until player gets level by default
+        if( lvl < type->level ) {
+            menu.selected = 1;
+        }
 
         if( !learners.empty() ) {
             add_header( _( "Read until this NPC gains a level:" ) );
