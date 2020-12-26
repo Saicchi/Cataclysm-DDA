@@ -543,7 +543,7 @@ bool avatar::read( item_location &book )
 
         if( !learners.empty() ) {
             add_header( _( "Read until this NPC gains a level:" ) );
-            for( const std::pair<npc *, std::string> &elem : learners ) {
+            for( const std::pair<npc *const, std::string> &elem : learners ) {
                 menu.addentry( 2 + elem.first->getID().get_value(), true, -1,
                                get_text( learners, elem ) );
             }
@@ -551,14 +551,14 @@ bool avatar::read( item_location &book )
 
         if( !fun_learners.empty() ) {
             add_header( _( "Reading for fun:" ) );
-            for( const std::pair<npc *, std::string> &elem : fun_learners ) {
+            for( const std::pair<npc *const, std::string> &elem : fun_learners ) {
                 menu.addentry( -1, false, -1, get_text( fun_learners, elem ) );
             }
         }
 
         if( !nonlearners.empty() ) {
             add_header( _( "Not participating:" ) );
-            for( const std::pair<npc *, std::string> &elem : nonlearners ) {
+            for( const std::pair<npc *const, std::string> &elem : nonlearners ) {
                 menu.addentry( -1, false, -1, get_text( nonlearners, elem ) );
             }
         }
@@ -620,7 +620,7 @@ bool avatar::read( item_location &book )
 
     // Don't include the reader as it would be too redundant.
     std::set<std::string> readers;
-    for( const std::pair<npc *, std::string> &elem : fun_learners ) {
+    for( const std::pair<npc *const, std::string> &elem : fun_learners ) {
         if( elem.first != reader ) {
             readers.insert( elem.first->disp_name() );
         }
