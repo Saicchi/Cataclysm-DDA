@@ -2800,7 +2800,7 @@ void read_activity_actor::start( player_activity &act, Character &who )
             ( who.is_npc() || query_yn( _( "Wield the %s and start reading?" ), book->tname() ) ) )   {
 
             if( !who.wield( *book ) ) {
-                add_msg( m_bad, "%s", who.can_wield( *book ).c_str() );
+                add_msg( m_bad, who.can_wield( *book ).c_str() );
                 act.set_to_null();
                 return;
             }
@@ -2865,17 +2865,8 @@ void read_activity_actor::read_book( Character &learner,
     min_ex = learner.adjust_for_focus( min_ex );
     max_ex = learner.adjust_for_focus( max_ex );
 
-    if( max_ex < 2 ) {
-        max_ex = 2;
-    }
-
-    if( max_ex > 10 ) {
-        max_ex = 10;
-    }
-
-    if( max_ex < min_ex ) {
-        max_ex = min_ex;
-    }
+    max_ex = clamp( max_ex, 2, 10 );
+    max_ex = std::max( min_ex, max_ex );
 
     min_ex *= ( originalSkillLevel + 1 ) * penalty;
     min_ex = std::max( min_ex, 1 );
@@ -3055,7 +3046,7 @@ bool read_activity_actor::player_readma( avatar &you )
 
     int difficulty = std::max( 1, style_to_learn->learn_difficulty );
     difficulty = std::max( 1, 20 + difficulty * 2 - you.get_skill_level( skill_used ) * 2 );
-    add_msg_debug( _( "Chance to learn one in: %d" ), difficulty );
+    add_msg_debug( "Chance to learn one in: %d", difficulty );
 
     if( one_in( difficulty ) ) {
         // learn martial art
@@ -3231,7 +3222,7 @@ std::string read_activity_actor::get_progress_message( const player_activity & )
         you.has_identified( book->typeId() ) ) {
         const SkillLevel &skill_level = you.get_skill_level_object( skill );
         //~ skill_name current_skill_level -> next_skill_level (% to next level)
-        return string_format( pgettext( "reading progress", "%s %d -> %d (%d%%)" ),
+        return string_format( pgettext( "reading progress", "%1$s %2$d -> %3$d (%4$d%%)" ),
                               skill.obj().name(),
                               skill_level.level(),
                               skill_level.level() + 1,

@@ -959,9 +959,7 @@ void npc::do_npc_read()
 
     book = book.obtain( *npc_character );
     if( can_read( *book, fail_reasons ) ) {
-        if( get_player_view().sees( pos() ) ) {
-            add_msg( m_info, _( "%s starts reading." ), disp_name() );
-        }
+        add_msg_if_player_sees( pos(), _( "%s starts reading." ), disp_name() );
 
         // NPCs can't read to other NPCs yet
         const int time_taken = time_to_read( *book, *this );
