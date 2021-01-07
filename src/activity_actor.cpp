@@ -2793,20 +2793,14 @@ void read_activity_actor::start( player_activity &act, Character &who )
         return;
     }
 
-    // make reader wield book to prevent
-    // losing item_location errors while loading
-    if( !who.is_wielding( *book ) ) {
-        if( !who.is_armed() ||
-            ( who.is_npc() || query_yn( _( "Wield the %s and start reading?" ), book->tname() ) ) )   {
-
-            if( !who.wield( *book ) ) {
-                add_msg( m_bad, who.can_wield( *book ).c_str() );
-                act.set_to_null();
-                return;
-            }
-            // location changed
-            book = item_location( who, &who.weapon );
+    // book item_location must be of type character
+    // or else there will be item_location errors while loading
+    if( book.where() != item_location::type::character ) {
+        // character should have book before starting this activity
+        if( who.has_item( *book ) ) {
+            book = item_location( who, book.get_item() );
         } else {
+            debugmsg( "ACT_READ character '%s' does not have '%s' book", who.get_name(), book->tname() );
             act.set_to_null();
             return;
         }
