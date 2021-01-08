@@ -2819,19 +2819,19 @@ void read_activity_actor::start( player_activity &act, Character &who )
 
 void read_activity_actor::do_turn( player_activity &act, Character &who )
 {
-    if( who.fine_detail_vision_mod() > 4 ) {
-        //It got too dark during the process of reading, bail out.
-        act.set_to_null();
-        who.add_msg_if_player( m_bad, _( "It's too dark to read!" ) );
-        return;
-    }
-
     if( !bktype.has_value() ) {
         bktype = book->type->use_methods.count( "MA_MANUAL" ) ?
                  book_type::martial_art : book_type::normal;
     }
 
     if( who.is_avatar() ) {
+        // the following check doesn't work for NPCs because it is counted for player's submap and z-level only
+        if( who.fine_detail_vision_mod() > 4 ) {
+            //It got too dark during the process of reading, bail out.
+            act.set_to_null();
+            who.add_msg_if_player( m_bad, _( "It's too dark to read!" ) );
+            return;
+        }
         if( bktype.value() == book_type::martial_art && one_in( 3 ) ) {
             who.mod_stamina( -1 );
         }
