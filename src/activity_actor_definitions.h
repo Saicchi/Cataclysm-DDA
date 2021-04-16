@@ -661,6 +661,8 @@ class try_sleep_activity_actor : public activity_actor
 class safecracking_activity_actor : public activity_actor
 {
     private:
+        int exp_step = 0;
+
         tripoint safe;
 
     public:
@@ -669,6 +671,8 @@ class safecracking_activity_actor : public activity_actor
         activity_id get_type() const override {
             return activity_id( "ACT_CRACKING" );
         }
+
+        static time_duration safecracking_time( const Character &who );
 
         void start( player_activity &act, Character &who ) override;
         void do_turn( player_activity &act, Character &who ) override;

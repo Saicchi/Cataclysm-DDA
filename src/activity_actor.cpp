@@ -1661,7 +1661,7 @@ std::unique_ptr<activity_actor> try_sleep_activity_actor::deserialize( JsonIn &j
     return actor.clone();
 }
 
-void safecracking_activity_actor::start( player_activity &act, Character &who )
+time_duration safecracking_activity_actor::safecracking_time( const Character &who )
 {
     time_duration cracking_time = 150_minutes;
     /** @EFFECT_DEVICES decreases time needed for safe cracking */
@@ -1669,9 +1669,17 @@ void safecracking_activity_actor::start( player_activity &act, Character &who )
     /** @EFFECT_PER decreases time needed for safe cracking */
     cracking_time -= 10_minutes * ( who.get_per() - 8 );
     cracking_time = std::max( 30_minutes, cracking_time );
+
     if( !who.has_proficiency( proficiency_prof_safecracking ) ) {
         cracking_time *= 3;
     }
+
+    return cracking_time;
+}
+
+void safecracking_activity_actor::start( player_activity &act, Character &who )
+{
+    time_duration cracking_time = safecracking_time( who );
 
     add_msg_debug( "safecracking time = %s", to_string( cracking_time ) );
 
@@ -1701,15 +1709,21 @@ void safecracking_activity_actor::do_turn( player_activity &act, Character &who 
     if( debug_mode && calendar::once_every( 5_minutes ) ) {
         add_msg_debug( "safecracking time = %s", to_string( time_duration::from_moves( act.moves_left ) ) );
     }
+
+    const int current_step =
+        std::ceil( 100 * ( act.moves_total - act.moves_left ) / act.moves_total ) / 5;
+    const int difference = current_step - exp_step ;
+    if( difference > 0 ) {
+        exp_step += difference;
+        if( !who.has_proficiency( proficiency_prof_safecracking ) ) {
+            who.practice_proficiency( proficiency_prof_safecracking, 3_minutes * difference );
+        }
+    }
 }
 
 void safecracking_activity_actor::finish( player_activity &act, Character &who )
 {
     who.add_msg_if_player( m_good, _( "With a satisfying click, the lock on the safe opens!" ) );
-
-    if( !who.has_proficiency( proficiency_prof_safecracking ) ) {
-        who.practice_proficiency( proficiency_prof_safecracking, 60_minutes );
-    }
     get_map().furn_set( safe, f_safe_c );
     act.set_to_null();
 }
@@ -1717,6 +1731,7 @@ void safecracking_activity_actor::finish( player_activity &act, Character &who )
 void safecracking_activity_actor::serialize( JsonOut &jsout ) const
 {
     jsout.start_object();
+    jsout.member( "exp_step", exp_step );
     jsout.member( "safe", safe );
     jsout.end_object();
 }
@@ -1726,6 +1741,7 @@ std::unique_ptr<activity_actor> safecracking_activity_actor::deserialize( JsonIn
     safecracking_activity_actor actor = safecracking_activity_actor( {} );
 
     JsonObject data = jsin.get_object();
+    data.read( "exp_step", actor.exp_step );
     data.read( "safe", actor.safe );
     return actor.clone();
 }
