@@ -681,7 +681,7 @@ class safecracking_activity_actor : public activity_actor
                                        const Character &/*who*/ ) const override {
             const safecracking_activity_actor &actor = static_cast<const safecracking_activity_actor &>
                     ( other );
-            return actor.safe == safe;
+            return actor.safe == safe && actor.exp_step == exp_step;
         }
 
         std::unique_ptr<activity_actor> clone() const override {
