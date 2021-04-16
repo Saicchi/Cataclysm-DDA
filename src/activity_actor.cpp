@@ -1717,6 +1717,12 @@ void safecracking_activity_actor::do_turn( player_activity &act, Character &who 
         exp_step += difference;
         if( !who.has_proficiency( proficiency_prof_safecracking ) ) {
             who.practice_proficiency( proficiency_prof_safecracking, 3_minutes * difference );
+            // player gained the proficiency mid-way through cracking
+            if( who.has_proficiency( proficiency_prof_safecracking ) ) {
+                int new_time = to_moves<int>( safecracking_time( who ) );
+                act.moves_total = act.moves_total > new_time ? new_time : act.moves_total;
+                act.moves_left = act.moves_left > new_time ? new_time : act.moves_left;
+            }
         }
     }
 }

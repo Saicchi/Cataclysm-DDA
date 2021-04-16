@@ -662,7 +662,6 @@ class safecracking_activity_actor : public activity_actor
 {
     private:
         int exp_step = 0;
-
         tripoint safe;
 
     public:
