@@ -1711,7 +1711,7 @@ void safecracking_activity_actor::do_turn( player_activity &act, Character &who 
     }
 
     const int current_step =
-        std::ceil( 100 * ( act.moves_total - act.moves_left ) / act.moves_total ) / 5;
+        ( 100 * ( act.moves_total - act.moves_left ) / act.moves_total ) / 5;
     const int difference = current_step - exp_step ;
     if( difference > 0 ) {
         exp_step += difference;
@@ -1723,6 +1723,14 @@ void safecracking_activity_actor::do_turn( player_activity &act, Character &who 
                 act.moves_total = act.moves_total > new_time ? new_time : act.moves_total;
                 act.moves_left = act.moves_left > new_time ? new_time : act.moves_left;
             }
+        }
+
+        const int skill_level = who.get_skill_level( skill_traps );
+        who.practice( skill_traps, std::max( 1,  skill_level / 2 ) );
+        if( who.get_skill_level( skill_traps ) > skill_level ) {
+            int new_time = to_moves<int>( safecracking_time( who ) );
+            act.moves_total = act.moves_total > new_time ? new_time : act.moves_total;
+            act.moves_left = act.moves_left > new_time ? new_time : act.moves_left;
         }
     }
 }
