@@ -121,7 +121,7 @@ TEST_CASE( "safecracking", "[activity][safecracking][devices]" )
         }
 
         GIVEN( "player has a stethoscope" ) {
-            item &tool = dummy.i_add( item( "stethoscope" ) );
+            dummy.i_add( item( "stethoscope" ) );
             mp.furn_set( safe, f_safe_l );
             REQUIRE( dummy.has_item_with_flag( flag_SAFECRACK ) );
             REQUIRE( !dummy.has_flag( json_flag_SUPER_HEARING ) );
@@ -156,7 +156,7 @@ TEST_CASE( "safecracking", "[activity][safecracking][devices]" )
 
         GIVEN( "player has a stethoscope" ) {
             dummy.clear_bionics();
-            item &tool = dummy.i_add( item( "stethoscope" ) );
+            dummy.i_add( item( "stethoscope" ) );
             mp.furn_set( safe, f_safe_l );
             REQUIRE( dummy.has_item_with_flag( flag_SAFECRACK ) );
             REQUIRE( !dummy.has_flag( json_flag_SUPER_HEARING ) );
@@ -209,7 +209,7 @@ TEST_CASE( "safecracking", "[activity][safecracking][devices]" )
         dummy.activity.start_or_resume( dummy, false );
 
         GIVEN( "player cracks one safe" ) {
-            item &tool = dummy.i_add( item( "stethoscope" ) );
+            dummy.i_add( item( "stethoscope" ) );
             mp.furn_set( safe, f_safe_l );
             REQUIRE( dummy.has_item_with_flag( flag_SAFECRACK ) );
             REQUIRE( dummy.activity.id() == ACT_CRACKING );
