@@ -98,8 +98,8 @@ TEST_CASE( "safecracking", "[activity][safecracking][devices]" )
         clear_avatar();
         clear_map();
 
-        const tripoint safe{ 0, 0, 0 };
-        dummy.setpos( safe + tripoint( 1, 0, 0 ) );
+        const tripoint safe;
+        dummy.setpos( safe + tripoint_east );
 
         map &mp = get_map();
         dummy.activity = player_activity( safecracking_activity_actor( safe ) );
@@ -201,8 +201,8 @@ TEST_CASE( "safecracking", "[activity][safecracking][devices]" )
         clear_avatar();
         clear_map();
 
-        const tripoint safe{ 0, 0, 0 };
-        dummy.setpos( safe + tripoint( 1, 0, 0 ) );
+        const tripoint safe;
+        dummy.setpos( safe + tripoint_east );
 
         map &mp = get_map();
         dummy.activity = player_activity( safecracking_activity_actor( safe ) );
