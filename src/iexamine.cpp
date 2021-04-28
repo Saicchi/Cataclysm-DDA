@@ -129,6 +129,7 @@ static const efftype_id effect_tetanus( "tetanus" );
 static const efftype_id effect_weak_antibiotic( "weak_antibiotic" );
 
 static const json_character_flag json_flag_ATTUNEMENT( "ATTUNEMENT" );
+static const json_character_flag json_flag_SUPER_HEARING( "SUPER_HEARING" );
 
 static const itype_id itype_2x4( "2x4" );
 static const itype_id itype_arm_splint( "arm_splint" );
@@ -1431,13 +1432,11 @@ void iexamine::slot_machine( player &p, const tripoint & )
  */
 void iexamine::safe( player &guy, const tripoint &examp )
 {
-    auto cracking_tool = guy.crafting_inventory().items_with( []( const item & it ) -> bool {
-        item temporary_item( it.type );
-        return temporary_item.has_flag( flag_SAFECRACK );
-    } );
+    bool has_cracking_tool = guy.has_flag( json_flag_SUPER_HEARING );
+    // short-circuit to avoid the more expensive iteration over items
+    has_cracking_tool = has_cracking_tool || guy.has_item_with_flag( flag_SAFECRACK );
 
-    if( !( !cracking_tool.empty() ||
-           guy.has_flag( STATIC( json_character_flag( "IMMUNE_HEARING_DAMAGE" ) ) ) ) ) {
+    if( !has_cracking_tool ) {
         guy.moves -= to_moves<int>( 10_seconds );
         // Assume a 3 digit 100-number code. Many safes allow adjacent + 1 dial locations to match,
         // so 1/20^3, or 1/8,000 odds.
