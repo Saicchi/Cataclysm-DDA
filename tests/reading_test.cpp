@@ -434,7 +434,7 @@ TEST_CASE( "reading a book for skill", "[reading][book][skill]" )
         dummy.set_skill_level( skill_id( "chemistry" ), 6 );
         REQUIRE( dummy.get_book_mastery( alpha ) == book_mastery::LEARNING );
 
-        dummy.focus_pool = 100;
+        dummy.set_focus( 100 );
         WHEN( "reading the book 100 times" ) {
             const cata::value_ptr<islot_book> bkalpha_islot = alpha.type->book;
             SkillLevel &avatarskill = dummy.get_skill_level_object( bkalpha_islot->skill );

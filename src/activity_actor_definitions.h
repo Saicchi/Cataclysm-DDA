@@ -944,9 +944,6 @@ class read_activity_actor : public activity_actor
         bool continuous;
         int learner_id;
 
-        void read_book( Character &learner, const cata::value_ptr<islot_book> &islotbook,
-                        SkillLevel &skill_level, double penalty );
-
         // Will return true if activity must be set to null
         bool player_read( avatar &you );
         bool player_readma( avatar &you );  // Martial arts book
