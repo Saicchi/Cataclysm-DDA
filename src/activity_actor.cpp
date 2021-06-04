@@ -1345,6 +1345,66 @@ std::unique_ptr<activity_actor> lockpick_activity_actor::deserialize( JsonIn &js
     return actor.clone();
 }
 
+void ebooksave_activity_actor::start( player_activity &act, Character &/*who*/ )
+{
+    const int pages = pages_in_book( book->typeId() );
+    const time_duration scanning_time = pages < 1 ? time_per_page : pages * time_per_page;
+    add_msg_debug( "ebooksave pages = %d", pages );
+    add_msg_debug( "shearing_time time = %s", to_string( scanning_time ) );
+    act.moves_total = to_moves<int>( scanning_time );
+    act.moves_left = act.moves_total;
+}
+
+void ebooksave_activity_actor::do_turn( player_activity &/*act*/, Character &who )
+{
+    // only consume charges every 25 pages
+    if( calendar::once_every( 25 * time_per_page ) ) {
+        if( !who.has_enough_charges( *ereader, false ) ) {
+            add_msg_if_player_sees(
+                who,
+                _( "%1$s %2$s ran out of batteries." ),
+                who.disp_name( true, true ),
+                item::nname( ereader->typeId() ) );
+            who.cancel_activity();
+            return;
+        }
+
+        who.use_charges( ereader->typeId(), ereader->type->charges_to_use() );
+    }
+}
+
+void ebooksave_activity_actor::finish( player_activity &act, Character &who )
+{
+    item book_copy = *book;
+    /* TODO: Check if book fits */
+    ereader->put_in( book_copy, item_pocket::pocket_type::EBOOK );
+    if( who.is_player() ) {
+        add_msg( m_info, _( "You scan the book into your device." ) );
+    } else { // who.is_npc()
+        add_msg_if_player_sees( who, _( "%s scan the book into their device." ),
+                                who.disp_name( false, true ) );
+    }
+    act.set_to_null();
+}
+
+void ebooksave_activity_actor::serialize( JsonOut &jsout ) const
+{
+    jsout.start_object();
+    jsout.member( "book", book );
+    jsout.member( "ereader", ereader );
+    jsout.end_object();
+}
+
+std::unique_ptr<activity_actor> ebooksave_activity_actor::deserialize( JsonIn &jsin )
+{
+    ebooksave_activity_actor actor = ebooksave_activity_actor( {}, {} );
+
+    JsonObject data = jsin.get_object();
+    data.read( "book", actor.book );
+    data.read( "ereader", actor.ereader );
+    return actor.clone();
+}
+
 void migration_cancel_activity_actor::do_turn( player_activity &act, Character &who )
 {
     // Stop the activity
@@ -3266,6 +3326,7 @@ deserialize_functions = {
     { activity_id( "ACT_DIG_CHANNEL" ), &dig_channel_activity_actor::deserialize },
     { activity_id( "ACT_DISASSEMBLE" ), &disassemble_activity_actor::deserialize },
     { activity_id( "ACT_DROP" ), &drop_activity_actor::deserialize },
+    { activity_id( "ACT_EBOOKSAVE" ), &ebooksave_activity_actor::deserialize },
     { activity_id( "ACT_GUNMOD_REMOVE" ), &gunmod_remove_activity_actor::deserialize },
     { activity_id( "ACT_HACKING" ), &hacking_activity_actor::deserialize },
     { activity_id( "ACT_HOTWIRE_CAR" ), &hotwire_car_activity_actor::deserialize },

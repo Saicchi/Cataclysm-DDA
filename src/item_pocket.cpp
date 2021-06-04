@@ -1196,7 +1196,8 @@ cata::optional<item> item_pocket::remove_item( const item_location &it )
 
 void item_pocket::overflow( const tripoint &pos )
 {
-    if( is_type( item_pocket::pocket_type::MOD ) || is_type( item_pocket::pocket_type::CORPSE ) ) {
+    if( is_type( item_pocket::pocket_type::MOD ) || is_type( item_pocket::pocket_type::CORPSE ) ||
+        is_type( item_pocket::pocket_type::EBOOK ) ) {
         return;
     }
     if( empty() ) {

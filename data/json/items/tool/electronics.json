@@ -258,8 +258,8 @@
       {
         "pocket_type": "EBOOK",
         "rigid": true,
-        "max_contains_volume": "1000 L",
-        "max_contains_weight": "1000 kg",
+        "max_contains_volume": "1 L",
+        "max_contains_weight": "1 kg",
         "weight_multiplier": 0.0
       }
     ]

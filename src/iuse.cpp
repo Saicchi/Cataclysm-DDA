@@ -9813,14 +9813,10 @@ cata::optional<int> iuse::ebooksave( player *p, item *it, bool, const tripoint &
         return cata::nullopt;
     }
 
-    /* TODO: Check if new book fits container */
-    /* TODO: Make this an activity */
-    item book_copy = *book;
-    it->put_in( book_copy, item_pocket::pocket_type::EBOOK );
-    p->add_msg_if_player( m_info, _( "You scan the book into your device." ) );
-   
+    p->assign_activity(
+        player_activity( ebooksave_activity_actor( book, item_location( *p, it ) ) ) );
 
-    return it->type->charges_to_use();
+    return cata::nullopt;
 }
 
 cata::optional<int> iuse::ebookread( player *p, item *it, bool, const tripoint & )
