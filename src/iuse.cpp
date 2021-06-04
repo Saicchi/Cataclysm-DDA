@@ -9769,6 +9769,95 @@ cata::optional<int> iuse::magic_8_ball( player *p, item *it, bool, const tripoin
     return 0;
 }
 
+cata::optional<int> iuse::ebooksave( player *p, item *it, bool, const tripoint & )
+{
+    if( !it->is_ebook_storage() ) {
+        debugmsg( "EBOOKSAVE iuse called on item without ebook type pocket" );
+        return cata::nullopt;
+    }
+
+    if( p->is_npc() ) {
+        return cata::nullopt;
+    }
+
+    if( p->is_underwater() ) {
+        p->add_msg_if_player( m_info, _( "Unfortunately your device is not waterproof." ) );
+        return cata::nullopt;
+    }
+
+    if( p->has_trait( trait_HYPEROPIC ) && !p->worn_with_flag( flag_FIX_FARSIGHT ) &&
+        !p->has_effect( effect_contacts ) && !p->has_flag( json_flag_ENHANCED_VISION ) ) {
+        p->add_msg_if_player( m_info,
+                              _( "You'll need to put on reading glasses before you can see the screen." ) );
+        return cata::nullopt;
+    }
+
+    std::set<itype_id> ebooks;
+    for( const item *ebook : it->ebooks() ) {
+        if( !ebook->is_book() ) {
+            debugmsg( "ebook type pocket contains non-book item %s", ebook->typeId().str() );
+            continue;
+        }
+
+        ebooks.insert( ebook->typeId() );
+    }
+
+    const item_location book = game_menus::inv::titled_filter_menu(
+    [&p, &ebooks]( const item & itm ) {
+        return itm.is_book() && p->has_identified( itm.typeId() ) && !ebooks.count( itm.typeId() );
+    },
+    *p->as_avatar(), _( "Scan which book?" ) );
+
+    if( !book ) {
+        p->add_msg_if_player( m_info, _( "Nevermind." ) );
+        return cata::nullopt;
+    }
+
+    /* TODO: Check if new book fits container */
+    /* TODO: Make this an activity */
+    item book_copy = *book;
+    it->put_in( book_copy, item_pocket::pocket_type::EBOOK );
+    p->add_msg_if_player( m_info, _( "You scan the book into your device." ) );
+   
+
+    return it->type->charges_to_use();
+}
+
+cata::optional<int> iuse::ebookread( player *p, item *it, bool, const tripoint & )
+{
+    if( !it->is_ebook_storage() ) {
+        debugmsg( "EBOOKREAD iuse called on item without ebook type pocket" );
+        return cata::nullopt;
+    }
+
+    if( p->is_npc() ) {
+        return cata::nullopt;
+    }
+
+    if( p->is_underwater() ) {
+        p->add_msg_if_player( m_info, _( "Unfortunately your device is not waterproof." ) );
+        return cata::nullopt;
+    }
+
+    if( p->has_trait( trait_HYPEROPIC ) && !p->worn_with_flag( flag_FIX_FARSIGHT ) &&
+        !p->has_effect( effect_contacts ) && !p->has_flag( json_flag_ENHANCED_VISION ) ) {
+        p->add_msg_if_player( m_info,
+                              _( "You'll need to put on reading glasses before you can see the screen." ) );
+        return cata::nullopt;
+    }
+
+    item_location ereader = item_location( *p, it );
+    item_location book = game_menus::inv::ebookread( *p, ereader );
+
+    if( book ) {
+        return cata::nullopt;
+    }
+
+    // p->assign_activity( player_activity( eread_activity_actor( time_to_read( it, *reader ), false ) ) );
+
+    return cata::nullopt;
+}
+
 void use_function::dump_info( const item &it, std::vector<iteminfo> &dump ) const
 {
     if( actor != nullptr ) {
