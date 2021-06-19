@@ -1369,7 +1369,7 @@ void ebooksave_activity_actor::do_turn( player_activity &/*act*/, Character &who
             return;
         }
 
-        who.use_charges( ereader->typeId(), ereader->type->charges_to_use() );
+        ereader->ammo_consume( ereader->type->charges_to_use(), who.pos() );
     }
 }
 
@@ -1381,7 +1381,7 @@ void ebooksave_activity_actor::finish( player_activity &act, Character &who )
     if( who.is_player() ) {
         add_msg( m_info, _( "You scan the book into your device." ) );
     } else { // who.is_npc()
-        add_msg_if_player_sees( who, _( "%s scan the book into their device." ),
+        add_msg_if_player_sees( who, _( "%s scans the book into their device." ),
                                 who.disp_name( false, true ) );
     }
     act.set_to_null();
@@ -2856,21 +2856,16 @@ void read_activity_actor::start( player_activity &act, Character &who )
     // book item_location must be of type character
     // or else there will be item_location errors while loading
     if( book.where() != item_location::type::character ) {
-        // character should have book before starting this activity
-        if( who.has_item( *book ) ) {
-            book = item_location( who, book.get_item() );
-        } else {
-            debugmsg( "ACT_READ character '%s' does not have '%s' book", who.get_name(), book->tname() );
-            act.set_to_null();
-            return;
-        }
+        book = item_location( who, book.get_item() );
     }
+
+    using_ereader = !!ereader;
 
     bktype = book->type->use_methods.count( "MA_MANUAL" ) ?
              book_type::martial_art : book_type::normal;
 
     // push copy of book for focus calculation
-    // avatar::update_mental_focus and avatar::calc_focus_equilibrium
+    // avatar::calc_focus_equilibrium
     act.targets.push_back( book );
 
     act.moves_total = moves_total;
@@ -2897,6 +2892,20 @@ void read_activity_actor::do_turn( player_activity &act, Character &who )
         }
     } else {
         who.moves = 0;
+    }
+
+    if( using_ereader && calendar::once_every( 15_minutes ) ) {
+        if( !who.has_enough_charges( *ereader, false ) ) {
+            add_msg_if_player_sees(
+                who,
+                _( "%1$s %2$s ran out of batteries." ),
+                who.disp_name( true, true ),
+                item::nname( ereader->typeId() ) );
+            who.cancel_activity();
+            return;
+        }
+
+        ereader->ammo_consume( ereader->type->charges_to_use(), who.pos() );
     }
 }
 
@@ -3292,6 +3301,8 @@ void read_activity_actor::serialize( JsonOut &jsout ) const
 
     jsout.member( "moves_total", moves_total );
     jsout.member( "book", book );
+    jsout.member( "ereader", ereader );
+    jsout.member( "using_ereader", using_ereader );
     jsout.member( "continuous", continuous );
     jsout.member( "learner_id", learner_id );
 
@@ -3305,6 +3316,8 @@ std::unique_ptr<activity_actor> read_activity_actor::deserialize( JsonIn &jsin )
 
     data.read( "moves_total", actor.moves_total );
     data.read( "book", actor.book );
+    data.read( "ereader", actor.ereader );
+    data.read( "using_ereader", actor.using_ereader );
     data.read( "continuous", actor.continuous );
     data.read( "learner_id", actor.learner_id );
 

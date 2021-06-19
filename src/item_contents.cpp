@@ -34,8 +34,7 @@
 static const std::vector<item_pocket::pocket_type> avail_types{
     item_pocket::pocket_type::CONTAINER,
     item_pocket::pocket_type::MAGAZINE,
-    item_pocket::pocket_type::MAGAZINE_WELL,
-    item_pocket::pocket_type::EBOOK
+    item_pocket::pocket_type::MAGAZINE_WELL
 };
 
 class pocket_favorite_callback : public uilist_callback

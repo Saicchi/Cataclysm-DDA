@@ -221,9 +221,9 @@
     ]
   },
   {
-    "id": "ebook_reader",
     "type": "TOOL",
-    "name": { "str": "eBook reader" },
+    "id": "ebook_reader",
+    "name": { "str": "eBook reader", "str_pl": "eBook readers" },
     "description": "An electronic book reader. Comes with a camera to take photos. ",
     "weight": "250 g",
     "volume": "250 ml",

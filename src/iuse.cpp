@@ -9845,11 +9845,11 @@ cata::optional<int> iuse::ebookread( player *p, item *it, bool, const tripoint &
     item_location ereader = item_location( *p, it );
     item_location book = game_menus::inv::ebookread( *p, ereader );
 
-    if( book ) {
+    if( !book ) {
         return cata::nullopt;
     }
 
-    // p->assign_activity( player_activity( eread_activity_actor( time_to_read( it, *reader ), false ) ) );
+    p->as_avatar()->read( book, ereader );
 
     return cata::nullopt;
 }

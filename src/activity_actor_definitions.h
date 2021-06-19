@@ -980,6 +980,10 @@ class read_activity_actor : public activity_actor
         item_location book;
         cata::optional<book_type> bktype;
 
+        // Using an electronic book reader
+        item_location ereader;
+        bool using_ereader;
+
         // Read until the learner with this ID gets a level
         bool continuous;
         int learner_id;
@@ -992,8 +996,10 @@ class read_activity_actor : public activity_actor
     public:
         read_activity_actor() = default;
 
-        read_activity_actor( int moves, item_location &book, bool continuous = false, int learner_id = -1 )
-            : moves_total( moves ), book( book ),
+        explicit read_activity_actor(
+            int moves, item_location &book, item_location &ereader,
+            bool continuous = false, int learner_id = -1 )
+            : moves_total( moves ), book( book ), ereader( ereader ),
               continuous( continuous ), learner_id( learner_id ) {};
 
         activity_id get_type() const override {
