@@ -2894,18 +2894,14 @@ void read_activity_actor::do_turn( player_activity &act, Character &who )
         who.moves = 0;
     }
 
-    if( using_ereader && calendar::once_every( 15_minutes ) ) {
-        if( !who.has_enough_charges( *ereader, false ) ) {
-            add_msg_if_player_sees(
-                who,
-                _( "%1$s %2$s ran out of batteries." ),
-                who.disp_name( true, true ),
-                item::nname( ereader->typeId() ) );
-            who.cancel_activity();
-            return;
-        }
-
-        ereader->ammo_consume( ereader->type->charges_to_use(), who.pos() );
+    if( using_ereader && !who.has_enough_charges( *ereader, false ) ) {
+        add_msg_if_player_sees(
+            who,
+            _( "%1$s %2$s ran out of batteries." ),
+            who.disp_name( true, true ),
+            item::nname( ereader->typeId() ) );
+        who.cancel_activity();
+        return;
     }
 }
 

@@ -9842,6 +9842,13 @@ cata::optional<int> iuse::ebookread( player *p, item *it, bool, const tripoint &
         return cata::nullopt;
     }
 
+    if( !it->active && it->is_transformable() ) {
+        const use_function *readinglight = it->type->get_use( "transform" );
+        if( readinglight ) {
+            readinglight->call( *p, *it, it->active, p->pos() );
+        }
+    }
+
     item_location ereader = item_location( *p, it );
     item_location book = game_menus::inv::ebookread( *p, ereader );
 
