@@ -19,6 +19,8 @@
 
 class player;
 
+static const activity_id ACT_READ( "ACT_READ" );
+
 static const trait_id trait_HATES_BOOKS( "HATES_BOOKS" );
 static const trait_id trait_HYPEROPIC( "HYPEROPIC" );
 static const trait_id trait_ILLITERATE( "ILLITERATE" );
@@ -450,6 +452,58 @@ TEST_CASE( "reading a book for skill", "[reading][book][skill]" )
             THEN( "gained a skill level" ) {
                 CHECK( dummy.get_skill_level( skill_id( "chemistry" ) ) > 6 );
                 CHECK( dummy.get_book_mastery( alpha ) == book_mastery::MASTERED );
+            }
+        }
+    }
+}
+
+
+TEST_CASE( "reading a book with an ebook reader", "[reading][book][ereader]" )
+{
+    avatar &dummy = get_avatar();
+    clear_avatar();
+
+    WHEN( "reading a book" ) {
+
+        dummy.worn.push_back( item( "backpack" ) );
+        dummy.i_add( item( "atomic_lamp" ) );
+        REQUIRE( dummy.fine_detail_vision_mod() == 1 );
+
+        item &ereader = dummy.i_add( item( "test_ebook_reader" ) );
+
+        item book{"test_textbook_fabrication"};
+        ereader.put_in( book, item_pocket::pocket_type::EBOOK );
+
+        item battery( "test_battery_disposable" );
+        battery.ammo_set( battery.ammo_default(), 100 );
+        ereader.put_in( battery, item_pocket::pocket_type::MAGAZINE_WELL );
+
+        THEN( "player can read the book" ) {
+
+            item_location booklc{dummy, &book};
+            item_location ereaderlc{dummy, &ereader};
+
+            dummy.activity = player_activity(
+                                 read_activity_actor(
+                                     dummy.time_to_read( *booklc, dummy ),
+                                     booklc,
+                                     ereaderlc,
+                                     true
+                                 ) );
+
+            dummy.activity.start_or_resume( dummy, false );
+            REQUIRE( dummy.activity.id() == ACT_READ );
+            dummy.activity.do_turn( dummy );
+
+            CHECK( dummy.activity.id() == ACT_READ );
+
+            AND_THEN( "ereader runs out of battery" ) {
+                ereader.ammo_consume( 100, dummy.pos() );
+                dummy.activity.do_turn( dummy );
+
+                THEN( "reading stops" ) {
+                    CHECK( dummy.activity.id() != ACT_READ );
+                }
             }
         }
     }
