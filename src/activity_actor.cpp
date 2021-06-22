@@ -1376,7 +1376,6 @@ void ebooksave_activity_actor::do_turn( player_activity &/*act*/, Character &who
 void ebooksave_activity_actor::finish( player_activity &act, Character &who )
 {
     item book_copy = *book;
-    /* TODO: Check if book fits */
     ereader->put_in( book_copy, item_pocket::pocket_type::EBOOK );
     if( who.is_player() ) {
         add_msg( m_info, _( "You scan the book into your device." ) );
