@@ -1299,6 +1299,10 @@ void item_pocket::on_contents_changed()
 
 bool item_pocket::spill_contents( const tripoint &pos )
 {
+    if( is_type( pocket_type::EBOOK ) ) {
+        return false;
+    }
+
     map &here = get_map();
     for( item &it : contents ) {
         here.add_item_or_charges( pos, it );
