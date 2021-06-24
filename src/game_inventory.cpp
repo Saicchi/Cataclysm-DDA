@@ -1244,7 +1244,7 @@ item_location game_menus::inv::ebookread( Character &pl, item_location &ereader 
     const std::string none_message =
         pl.is_avatar() ?
         string_format( _( "%1$s have nothing to read." ), pl.disp_name( false, true ) ) :
-        _( "%1$s has nothing to read." );
+        string_format( _( "%1$s has nothing to read." ), pl.disp_name( false, true ) );
 
     const read_inventory_preset preset( *pl.as_player() );
     inventory_pick_selector inv_s( pl, preset );
