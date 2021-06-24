@@ -479,7 +479,7 @@ class ebooksave_activity_actor : public activity_actor
                                        const Character &/*who*/ ) const override {
             const ebooksave_activity_actor &actor = static_cast<const ebooksave_activity_actor &>
                                                     ( other );
-            return actor.book == book &&  actor.ereader == ereader;
+            return actor.book == book && actor.ereader == ereader;
         }
 
     public:
