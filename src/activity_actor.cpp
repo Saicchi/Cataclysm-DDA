@@ -1681,7 +1681,8 @@ void safecracking_activity_actor::start( player_activity &act, Character &who )
 {
     time_duration cracking_time = safecracking_time( who );
 
-    add_msg_debug( "safecracking time = %s", to_string( cracking_time ) );
+    add_msg_debug( debugmode::DF_ACT_SAFECRACKING, "safecracking time = %s",
+                   to_string( cracking_time ) );
 
     if( who.is_player() ) {
         add_msg( m_info, _( "You start cracking the safe." ) );
@@ -1707,7 +1708,8 @@ void safecracking_activity_actor::do_turn( player_activity &act, Character &who 
     }
 
     if( debug_mode && calendar::once_every( 5_minutes ) ) {
-        add_msg_debug( "safecracking time = %s", to_string( time_duration::from_moves( act.moves_left ) ) );
+        add_msg_debug( debugmode::DF_ACT_SAFECRACKING, "safecracking time = %s",
+                       to_string( time_duration::from_moves( act.moves_left ) ) );
     }
 
     const int current_step =
