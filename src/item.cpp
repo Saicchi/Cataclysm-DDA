@@ -7644,9 +7644,7 @@ std::vector<std::pair<const recipe *, int>> item::get_available_recipes( const C
             std::string new_recipe = recipes.substr( first_string_index,
                                      next_string_index - first_string_index );
             const recipe *r = &recipe_id( new_recipe ).obj();
-            if( u.get_skill_level( r->skill_used ) >= r->difficulty ) {
-                recipe_entries.emplace_back( r, r->difficulty );
-            }
+            recipe_entries.emplace_back( r, r->difficulty );
             first_string_index = next_string_index + 1;
         }
     }
